@@ -1,0 +1,23 @@
+{
+    "mcpServers": {
+        "odoo": {
+            "command": "uvx",
+            "args": [
+                "mcp-server-odoo"
+            ],
+            "env": {
+                "ODOO_URL": "https://andrassy.ia-prop.com",
+                "ODOO_DB": "main_rs_db",
+                "ODOO_USER": "administrador@andrassy.cl",
+                "ODOO_PASSWORD": "12b898aea77750bafc98175cefff88317528ba22",
+                "ODOO_YOLO": "read"
+            },
+            "autoApprove": [
+                "get_record",
+                "search_records",
+                "list_models",
+                "update_record"
+            ]
+        }
+    }
+}
