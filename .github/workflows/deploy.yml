@@ -39,7 +39,7 @@ jobs:
           import json
           import hashlib
 
-          secret = os.environ.get('SA_KEY', '').strip()
+          secret = os.environ.get("SA_KEY", "").strip()
           final_secret = None
 
           # Try to load as JSON directly
@@ -50,31 +50,26 @@ jobs:
           except json.JSONDecodeError:
               print("Secret is not valid JSON. Trying Base64 decode...")
               
-          # Try to decode from Base64
+          # Try to decode from Base64 if not already found
           if final_secret is None:
               try:
-                  decoded = base64.b64decode(secret).decode('utf-8')
+                  decoded = base64.b64decode(secret).decode("utf-8")
                   json.loads(decoded) # Validate result is JSON
                   print("Detected valid Base64-encoded JSON secret.")
                   final_secret = decoded
               except Exception as e:
                   print(f"Error: Secret is neither valid JSON nor valid Base64 encoded JSON.")
-                  print(f"Details: {e}")
                   exit(1)
 
-          # If we reached here, final_secret should contain valid JSON
-          if final_secret is None:
-              print("Error: Could not process secret into valid JSON.")
-              exit(1)
-
           # Debugging: Print SHA256 of the content
+          import hashlib
           print(f"DEBUG: Content size: {len(final_secret)} bytes")
           print(f"DEBUG: SHA256: {hashlib.sha256(final_secret.encode('utf-8')).hexdigest()}")
           print(f"DEBUG: First 10 chars (hex): {final_secret[:10].encode('utf-8').hex()}")
           print(f"DEBUG: First 50 chars: {final_secret[:50]}")
 
           # Write to GITHUB_OUTPUT
-          with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
               fh.write(f"CREDENTIALS_JSON<<EOF\n{final_secret}\nEOF\n")
 
       - name: Authenticate to Google Cloud
@@ -88,16 +83,16 @@ jobs:
 
       - name: Deploy to GCP VM via IAP
         run: |
-          # Extract repository name as module name
-          REPO_NAME=$(basename "${{ github.repository }}")
+          MODULE_NAME=$(basename "${{ github.repository }}")
           ENVIRONMENT="${{ steps.env.outputs.ENV }}"
 
-          echo "🚀 Triggering deployment for $REPO_NAME to $ENVIRONMENT"
+          echo "🚀 Triggering deployment for $MODULE_NAME to $ENVIRONMENT"
 
-          # SSH command using IAP tunnel as user 'vigbe' to ensure correct permissions
+          # SSH command using IAP tunnel as user "vigbe" to ensure correct permissions
           # Note: Host checking is disabled to avoid interactive prompts in CI
           gcloud compute ssh vigbe@odoo-app-01 \
             --project=odoo-ia-prop-com \
             --zone=southamerica-west1-b \
             --tunnel-through-iap \
-            --command="cd ~/odoo_deploy_files && ./deploy_module.sh \"$REPO_NAME\" \"$ENVIRONMENT\""
+            --command="cd ~/odoo_deploy_files && ./deploy_module.sh \"$MODULE_NAME\" \"$ENVIRONMENT\""
+
