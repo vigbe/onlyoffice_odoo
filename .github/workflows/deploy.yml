@@ -28,55 +28,12 @@ jobs:
             echo "Environment set to TEST"
           fi
 
-      - name: Process Credential Secret
-        id: process_creds
-        shell: python
-        env:
-          SA_KEY: ${{ secrets.GCP_SA_KEY }}
-        run: |
-          import os
-          import base64
-          import json
-          import hashlib
-
-          secret = os.environ.get("SA_KEY", "").strip()
-          final_secret = None
-
-          # Try to load as JSON directly
-          try:
-              json.loads(secret)
-              print("Detected valid JSON secret.")
-              final_secret = secret
-          except json.JSONDecodeError:
-              print("Secret is not valid JSON. Trying Base64 decode...")
-              
-          # Try to decode from Base64 if not already found
-          if final_secret is None:
-              try:
-                  decoded = base64.b64decode(secret).decode("utf-8")
-                  json.loads(decoded) # Validate result is JSON
-                  print("Detected valid Base64-encoded JSON secret.")
-                  final_secret = decoded
-              except Exception as e:
-                  print(f"Error: Secret is neither valid JSON nor valid Base64 encoded JSON.")
-                  exit(1)
-
-          # Debugging: Print SHA256 of the content
-          import hashlib
-          print(f"DEBUG: Content size: {len(final_secret)} bytes")
-          print(f"DEBUG: SHA256: {hashlib.sha256(final_secret.encode('utf-8')).hexdigest()}")
-          print(f"DEBUG: First 10 chars (hex): {final_secret[:10].encode('utf-8').hex()}")
-          print(f"DEBUG: First 50 chars: {final_secret[:50]}")
-
-          # Write to GITHUB_OUTPUT
-          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
-              fh.write(f"CREDENTIALS_JSON<<EOF\n{final_secret}\nEOF\n")
-
       - name: Authenticate to Google Cloud
         id: auth
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: "${{ steps.process_creds.outputs.CREDENTIALS_JSON }}"
+          workload_identity_provider: "projects/670649208826/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider"
+          service_account: "github-deploy-sa@odoo-ia-prop-com.iam.gserviceaccount.com"
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
@@ -88,8 +45,6 @@ jobs:
 
           echo "🚀 Triggering deployment for $MODULE_NAME to $ENVIRONMENT"
 
-          # SSH command using IAP tunnel as user "vigbe" to ensure correct permissions
-          # Note: Host checking is disabled to avoid interactive prompts in CI
           gcloud compute ssh vigbe@odoo-app-01 \
             --project=odoo-ia-prop-com \
             --zone=southamerica-west1-b \
