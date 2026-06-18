@@ -70,7 +70,11 @@ jobs:
           FAILFILE=$(mktemp)
           echo "0" > "$FAILFILE"
 
-          while IFS=$'\t' read -r VM_NAME VM_ZONE; do
+          # IMPORTANT: iterate over fd 3, not stdin. `gcloud compute ssh` inside
+          # the loop consumes fd 0 and eats the next VM line, so a plain
+          # `done <<< "$VMS"` processes only the FIRST VM (odoo-app-01 was
+          # silently skipped, leaving it down). fd 3 isolates loop input.
+          while IFS=$'\t' read -r VM_NAME VM_ZONE <&3; do
             if [ -z "$VM_NAME" ]; then continue; fi
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "📦 Deploying to $VM_NAME ($VM_ZONE)..."
@@ -83,13 +87,13 @@ jobs:
               --no-user-output-enabled \
               --ssh-flag="-o ConnectTimeout=60" \
               --ssh-flag="-n" \
-              --command="cd ~/odoo_deploy_files && ./deploy_module.sh \"$MODULE_NAME\" \"$ENVIRONMENT\""; then
+              --command="cd ~/odoo_deploy_files && ./deploy_module.sh \"$MODULE_NAME\" \"$ENVIRONMENT\"" </dev/null; then
               echo "✅ $VM_NAME: Deploy successful"
             else
               echo "❌ $VM_NAME: Deploy failed"
               echo "1" > "$FAILFILE"
             fi
-          done <<< "$(echo "$VMS")"
+          done 3<<< "$(echo "$VMS")"
 
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
