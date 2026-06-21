@@ -1,3 +1,4 @@
+# test-deploy-pipeline-marker (ci validation, safe to remove)
 # pylint: disable=pointless-statement
 {
     "name": "ONLYOFFICE",
