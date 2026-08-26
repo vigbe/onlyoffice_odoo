@@ -5,6 +5,13 @@ on:
     branches:
       - main
       - develop
+    paths-ignore:
+      - '.github/**'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   deploy:
