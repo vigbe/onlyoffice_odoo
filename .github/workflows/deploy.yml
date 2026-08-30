@@ -54,10 +54,14 @@ jobs:
 
           echo "🚀 Deploying $MODULE_NAME to $ENVIRONMENT across all VMs"
 
-          # Discover all VMs with a 'domain' label (indicates Odoo instance)
+          # Discover VMs with a 'domain' label (indicates Odoo instance).
+          # erp-app-01 is EXCLUDED on purpose: it is a separate ERP instance
+          # that does not host this module and has no GitHub SSH key, so the
+          # deploy_module.sh clone always fails there and turns the workflow
+          # red for no real reason. This module only deploys to odoo-app-01.
           VMS=$(gcloud compute instances list \
             --project=odoo-ia-prop-com \
-            --filter="status=RUNNING AND labels.domain:*" \
+            --filter="status=RUNNING AND labels.domain:* AND name!=erp-app-01" \
             --format="value(name,zone)" \
             --quiet)
 
