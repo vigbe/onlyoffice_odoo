@@ -1,10 +1,16 @@
+# Derivative work: fork of the official ONLYOFFICE Odoo addon, © Ascensio System SIA
+# (https://github.com/ONLYOFFICE/onlyoffice_odoo), distributed under GNU LGPL-3.
+# Local modifications: © 2026 Victor Bastías Escobar (https://vicbas.com), economic rights
+# assigned to IA-PROP (I.A-PROP SPA, Chile, https://ia-prop.com) in November 2026,
+# distributed under the same GNU LGPL-3. See COPYRIGHT.md.
+
 # test-deploy-pipeline-marker (ci validation, safe to remove)
 # pylint: disable=pointless-statement
 {
     "name": "ONLYOFFICE",
     "summary": "Edit and collaborate on office files within Odoo Documents.",
     "description": "The ONLYOFFICE app allows users to edit and collaborate on office files within Odoo Documents using ONLYOFFICE Docs. You can work with text documents, spreadsheets, and presentations, co-author documents in real time using two co-editing modes (Fast and Strict), Track Changes, comments, and built-in chat.",  # noqa: E501
-    "author": "ONLYOFFICE",
+    'author': 'ONLYOFFICE (© Ascensio System SIA) & Victor Bastías Escobar',
     "website": "https://github.com/ONLYOFFICE/onlyoffice_odoo",
     "category": "Productivity",
     "version": "6.3.0",
