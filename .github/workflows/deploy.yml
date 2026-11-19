@@ -5,8 +5,26 @@ on:
     branches:
       - main
       - develop
-    paths-ignore:
-      - '.github/**'
+    paths:
+      - '__manifest__.py'
+      - '**/*.py'
+      - '**/*.xml'
+      - '**/*.csv'
+      - '**/*.js'
+      - '**/*.scss'
+      - '**/*.po'
+      - '**/*.json'
+      - '**/static/**'
+      - '**/data/**'
+      - '**/*.docbuilder'
+      - '!.pi/**'
+      - '!.pi-lens/**'
+      - '!.pi-subagents/**'
+      - '!.atl/**'
+      - '!.kiro/**'
+      - '!.agents/**'
+      - '!.vscode/**'
+      - '!.codegraph/**'
   workflow_dispatch:
 
 concurrency:
